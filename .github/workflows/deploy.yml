@@ -12,9 +12,8 @@ jobs:
         if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only when test completed successfully 
         steps:
             - uses: actions/checkout@v2
-            - name: Install dependencies
-                working-directory: backend
-                run: npm install    
+            - run: npm install    
+              working-directory: backend
 
             - name: zip up folder
               run: zip -r "musclmate_backend_deploy-${{github.sha}}.zip" backend
@@ -32,10 +31,10 @@ jobs:
             - name: Create new application version
               run: |  
                 aws elasticbeanstalk create-application-version \
-                --application-name musclmateBackend \
+                --application-name backend \
                 --source-bundle S3Bucket="terraform-state-muscleman-lordfarquaadthecreator",S3Key="musclmate_backend_deploy-${{github.sha}}.zip " \
                 --version-label "ver-${{ github.sha }}" \
                 --description "commit-sha-${{ github.sha }}"
 
             - name: Deploy application
-              run: aws elasticbeanstalk update-environment --environment-name musclmate-environment --version-label "ver-${{ github.sha }}"
+              run: aws elasticbeanstalk update-environment --environment-name terraform-deploy-backend --version-label "ver-${{ github.sha }}"
